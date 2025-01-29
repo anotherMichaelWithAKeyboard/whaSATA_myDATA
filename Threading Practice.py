@@ -10,6 +10,8 @@ import sounddevice as sd # allows to load audiofiles and write them back in diff
 
 import time 
 
+import whisper # whisper AI transcription Module
+
 # Folder Paths
 folder_list = [r"whaSATA_myDATA", r"whaSATA_myDATA\Audio Files", r"whaSATA_myDATA\TextFiles"]
 BASE_PATH = r"C:\Program Files"
@@ -45,6 +47,29 @@ def record_audio(audio_file='audio_clip.WAV', duration=15, fs=44100, channels=1,
     os.remove(os.path.join(AUDIO_FOLDER, audio_file)) # Removes temp save
     print("Deleted file")
 
+def transcribe_audio(audio_file='audio_clip.WAV'):
+    file_path = os.path.join(AUDIO_FOLDER, audio_file)
+
+    model = whisper.load_model('small', device='cuda')
+    print("Transcribing audio...")
+
+    result = model.transcribe(file_path, language='en', verbose=True)
+
+    transcription = result['text']
+    segments = result['segments'] # takes list of segments out of result
+    print("Transcription Completed.")
+    print("\nTranscription with timestamps:")
+    for segment in segments:
+        start_time = segment['start']   # pull start_time from each segment
+        end_time = segment['end']       # pull end_time from each segment
+        text = segment['text']          # pull text from each segment.
+        print(f"[{start_time:.2f} - {end_time:.2f}] {text}")
+
+    # edit note- pull variables for realigning.
+
+#-------------------------------------------------------------------------
+#------------------------Test Functions---------------------------------
+# Simple counting function to Test multithreading
 def stall_temp_task_test():
     count = 0
     for i in range(15):
@@ -52,20 +77,30 @@ def stall_temp_task_test():
         print(count)
         time.sleep(1)
 
+#------------------------------------------------------------------------
+#------------------------------------------------------------------------
+# Recursive loop that runs all the tasks in parallel 
+def transcription_loop():
+    
+    # initialise the functions on a thread.
+    # t1 = threading.Thread(target= record_audio)
+    t2 = threading.Thread(target=stall_temp_task_test)
+    t3 = threading.Thread(target= transcribe_audio)
+    #t4 =  threading.Thread(target= )
+
+    # Run functions
+    #t1.start()
+    #t2.start()
+    t3.start()
+    t2.start()
+    #t4.start()
 
 
 def main():
-    create_folders()
-    #record_audio()
-    #stall_temp_task_test()
+    #create_folders()
+    transcription_loop()
+    #transcribe_audio()
 
-    recording_time = 5 # Time to record audio clip
-
-    t1 = threading.Thread(target= record_audio)
-    t2 = threading.Thread(target=stall_temp_task_test)
-    
-    t2.start()
-    t1.start()
 
 
 if __name__ == "__main__":
