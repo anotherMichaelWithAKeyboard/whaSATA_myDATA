@@ -12,6 +12,8 @@ import time
 
 import whisper # whisper AI transcription Module
 
+import librosa # analyzing and processing audio signals, converts to mel Spectrograms.
+
 # Folder Paths
 folder_list = [r"whaSATA_myDATA", r"whaSATA_myDATA\Audio Files", r"whaSATA_myDATA\TextFiles"]
 BASE_PATH = r"C:\Program Files"
@@ -44,8 +46,8 @@ def record_audio(audio_file='audio_clip.WAV', duration=15, fs=44100, channels=1,
     shutil.move(audio_file, AUDIO_FOLDER)
     print(f"Moved {audio_file} to {AUDIO_FOLDER}")
     
-    os.remove(os.path.join(AUDIO_FOLDER, audio_file)) # Removes temp save
-    print("Deleted file")
+    #os.remove(os.path.join(AUDIO_FOLDER, audio_file)) # Removes temp save
+    #print("Deleted file")
 
 def transcribe_audio(audio_file='audio_clip.WAV'):
     file_path = os.path.join(AUDIO_FOLDER, audio_file)
@@ -72,7 +74,7 @@ def transcribe_audio(audio_file='audio_clip.WAV'):
 # Simple counting function to Test multithreading
 def stall_temp_task_test():
     count = 0
-    for i in range(15):
+    for i in range(30):
         count+=1
         print(count)
         time.sleep(1)
@@ -83,16 +85,19 @@ def stall_temp_task_test():
 def transcription_loop():
     
     # initialise the functions on a thread.
-    # t1 = threading.Thread(target= record_audio)
+    t1 = threading.Thread(target= record_audio)
     t2 = threading.Thread(target=stall_temp_task_test)
     t3 = threading.Thread(target= transcribe_audio)
     #t4 =  threading.Thread(target= )
 
     # Run functions
-    #t1.start()
-    #t2.start()
-    t3.start()
     t2.start()
+    t1.start()
+    t1.join()
+    t3.start()
+    
+    
+    
     #t4.start()
 
 
